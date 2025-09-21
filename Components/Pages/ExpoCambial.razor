@@ -1,81 +1,640 @@
 ﻿@rendermode InteractiveServer
+@page "/"
 @page "/expocambial"
+@using ExpoCambialWeb.Negocios
+@inject CrudNegocios objNeg
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Expo Cambial</PageTitle>
 
-<div class="container-fluid p-3">
-    <div class="row">
-        <div class="col-12">
-            <!-- Label Bradesco (posicionado à direita como no original) -->
-            <div class="d-flex justify-content-between align-items-start mb-4">
-                <div></div> <!-- Espaço vazio à esquerda -->
-                <h5 class="text-primary">Bradesco Custódia e Serviços Financeiros</h5>
-            </div>
+<style>
+    .expocambial-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
 
-            <!-- GroupBox Nome -->
-            <fieldset class="border rounded p-3 mb-3" style="max-width: 250px;">
-                <legend class="w-auto px-2" style="font-size: 0.9rem;">Nome</legend>
-                <input type="text" class="form-control form-control-sm"
-                       value="Usuario.Exemplo" readonly disabled
-                       style="background-color: #f8f9fa;" />
-            </fieldset>
+    .header-section {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 30px 0;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
 
-            <!-- GroupBox Mês Referência -->
-            <fieldset class="border rounded p-3 mb-3" style="max-width: 130px;">
-                <legend class="w-auto px-2" style="font-size: 0.9rem;">Mês Referência</legend>
-                <input type="text" class="form-control form-control-sm"
-                       value="08/2025" readonly disabled
-                       style="background-color: #f8f9fa;" />
-            </fieldset>
+    .bradesco-logo {
+        font-size: 28px;
+        color: #cc0000;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
 
-            <!-- GroupBox Departamento -->
-            <fieldset class="border rounded p-3 mb-3" style="max-width: 250px;">
-                <legend class="w-auto px-2" style="font-size: 0.9rem;">Departamento</legend>
-                <input type="text" class="form-control form-control-sm"
-                       value="Departamento Exemplo" readonly disabled
-                       style="background-color: #f8f9fa;" />
-            </fieldset>
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        border: 1px solid #e1e8ed;
+    }
 
-            <!-- Label Norma (fora de qualquer groupbox) -->
-            <div class="mb-3">
-                <label class="form-label">
-                    Eu Usuario.Exemplo, do departamento Departamento Exemplo estou ciente de norma X
-                </label>
-            </div>
+    .form-group {
+        margin-bottom: 30px;
+    }
 
-            <!-- GroupBox Escolha (sem título visível como no original) -->
-            <fieldset class="border rounded p-3 mb-4" style="max-width: 600px;">
-                <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="escolha" id="rbSim" checked />
-                        <label class="form-check-label" for="rbSim">
-                            Estou ciente da norma Y
-                        </label>
-                    </div>
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 14px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+    }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+    .form-select {
+        background: white;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 14px;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+    .norma-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 30px 0;
+        font-size: 16px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        margin: 30px 0;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        padding: 15px 25px;
+        background: white;
+        border: 2px solid #e1e8ed;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 200px;
+    }
+
+        .radio-option:hover:not(.disabled) {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .radio-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f8f9fa;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .radio-option label {
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+    .alert {
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+    }
+
+    .alert-error {
+        background-color: #fee;
+        color: #c53030;
+        border: 1px solid #feb2b2;
+    }
+
+    .alert-success {
+        background-color: #f0fff4;
+        color: #22543d;
+        border: 1px solid #9ae6b4;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+    }
+
+    @@keyframes spin {
+        0%
+
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    @@keyframes slideIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .footer-info {
+        text-align: center;
+        margin-top: 40px;
+        color: #7f8c8d;
+        font-size: 13px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: slideUp 0.3s ease;
+    }
+
+    .modal-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .modal-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-body {
+        margin-bottom: 30px;
+        text-align: center;
+        line-height: 1.6;
+    }
+
+    .modal-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 4px solid #3498db;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 20px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+    }
+
+    @@keyframes slideUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+</style>
+
+<div class="expocambial-container">
+    <!-- Header -->
+    <div class="header-section">
+        <div class="bradesco-logo">Bradesco Custódia e Serviços Financeiros</div>
+        <p style="color: #7f8c8d; margin-top: 10px;">Sistema de Declaração de Exposição Cambial</p>
+    </div>
+
+    <div class="form-card">
+        <!-- Nome -->
+        <div class="form-group">
+            <label class="form-label">Nome Completo</label>
+            <input type="text" class="form-input" value="@nomeUsuario" readonly />
+        </div>
+
+        <!-- Mês Referência -->
+        <div class="form-group">
+            <label class="form-label">Mês de Referência</label>
+            <input type="text" class="form-input" value="@mesReferencia" readonly style="max-width: 200px;" />
+        </div>
+
+        <!-- Departamento -->
+        <div class="form-group">
+            <label class="form-label">Departamento</label>
+            @if (departamentos == null)
+            {
+                <div class="form-input">
+                    <span class="loading-spinner"></span>Carregando departamentos...
                 </div>
-                <div class="mb-2">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="escolha" id="rbNao" />
-                        <label class="form-check-label" for="rbNao">
-                            Não estou ciente da norma Y
-                        </label>
-                    </div>
+            }
+            else if (departamentos.Count == 1)
+            {
+                <input type="text" class="form-input" value="@departamentos[0]" readonly />
+            }
+            else if (departamentos.Count > 1)
+            {
+                <select class="form-select" @bind="departamentoSelecionado">
+                    <option value="">Selecione um departamento...</option>
+                    @foreach (var depto in departamentos)
+                    {
+                        <option value="@depto">@depto</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <div class="alert alert-error">
+                    Nenhum departamento encontrado para este usuário
                 </div>
-            </fieldset>
+            }
+        </div>
 
-            <!-- Botão Enviar -->
-            <div class="mb-4">
-                <button type="button" class="btn btn-primary btn-sm" style="width: 80px;">
-                    Enviar
+        <!-- Norma -->
+        @if (!string.IsNullOrEmpty(DepartamentoAtual))
+        {
+            <div class="norma-text">
+                Eu <strong>@nomeUsuario</strong>, do departamento <strong>@DepartamentoAtual</strong>, declaro estar ciente da norma de exposição cambial
+            </div>
+        }
+        else
+        {
+            <div style="text-align: center; color: #7f8c8d; padding: 20px; font-style: italic;">
+                Selecione um departamento para prosseguir
+            </div>
+        }
+
+        <!-- Radio Buttons -->
+        <div class="radio-group">
+            <div class="radio-option @(!PodeResponder ? "disabled" : "")" @onclick="() => SelecionarResposta(true)">
+                <input type="radio" id="rbSim" name="escolha" value="sim" @onchange="SelecionarResposta" disabled="@(!PodeResponder)" />
+                <label for="rbSim">Estou ciente da norma</label>
+            </div>
+            <div class="radio-option @(!PodeResponder ? "disabled" : "")" @onclick="() => SelecionarResposta(false)">
+                <input type="radio" id="rbNao" name="escolha" value="nao" @onchange="SelecionarResposta" disabled="@(!PodeResponder)" />
+                <label for="rbNao">Não estou ciente da norma</label>
+            </div>
+        </div>
+
+        <!-- Mensagem de validação -->
+        @if (!string.IsNullOrEmpty(mensagemValidacao))
+        {
+            <div class="alert @(mensagemValidacao.Contains("sucesso") ? "alert-success" : "alert-error")">
+                @mensagemValidacao
+            </div>
+        }
+
+        <!-- Botão Enviar -->
+        <div style="text-align: center; margin: 40px 0;">
+            <button type="button" class="btn-primary" @onclick="EnviarFormulario" disabled="@(!PodeResponder)">
+                Enviar Declaração
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-info">
+        Em caso de dúvidas, entre em contato com fulano@email.com<br>
+        <small>© 2025 - Sistema ExpoCambial</small>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+@if (exibirModal)
+{
+    <div class="modal-overlay" @onclick="FecharModal">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <div class="modal-title">Confirmação de Atualização</div>
+            </div>
+            <div class="modal-body">
+                <p><strong>@modalTitulo</strong></p>
+                <div class="modal-info">
+                    <p>@modalRespostaAtual</p>
+                    <p>@modalNovaResposta</p>
+                </div>
+                <p>@modalPergunta</p>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-secondary" @onclick="() => ResponderModal(false)">
+                    Cancelar
                 </button>
-            </div>
-
-            <!-- Label Email (posicionado mais à direita) -->
-            <div class="d-flex justify-content-end">
-                <small class="text-muted">
-                    Em caso de dúvidas entrar em contato com fulano@email.com
-                </small>
+                <button type="button" class="btn-primary" @onclick="() => ResponderModal(true)">
+                    Confirmar Atualização
+                </button>
             </div>
         </div>
     </div>
-</div>
+}
+
+@code {
+    // Propriedades
+    public string nomeUsuario = "ITALO";
+    private string? emailUsuario = "italopenha77@outlook.com";
+    private string mesReferencia = "";
+    private List<string>? departamentos = null;
+    private string departamentoSelecionado = "";
+
+    // Radio buttons
+    private string? respostaSelecionada = null;
+
+    // Mensagens e estados
+    private string mensagemValidacao = "";
+
+    // Modal
+    private bool exibirModal = false;
+    private TaskCompletionSource<bool>? modalTaskSource;
+    private string modalTitulo = "";
+    private string modalRespostaAtual = "";
+    private string modalNovaResposta = "";
+    private string modalPergunta = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        mesReferencia = DateTime.Now.AddMonths(-1).ToString("MM/yyyy");
+
+        if (!string.IsNullOrEmpty(emailUsuario))
+        {
+            departamentos = objNeg.BuscarNomesDepartamentosPorEmailUsuario(emailUsuario);
+
+            if (departamentos?.Count == 1)
+            {
+                departamentoSelecionado = departamentos[0];
+            }
+        }
+    }
+
+    private void SelecionarResposta(ChangeEventArgs e)
+    {
+        respostaSelecionada = e.Value?.ToString();
+        mensagemValidacao = "";
+    }
+
+    private void SelecionarResposta(bool valor)
+    {
+        if (!PodeResponder) return;
+
+        respostaSelecionada = valor ? "sim" : "nao";
+        mensagemValidacao = "";
+        StateHasChanged();
+    }
+
+    private async Task EnviarFormulario()
+    {
+        if (string.IsNullOrEmpty(respostaSelecionada))
+        {
+            mensagemValidacao = "Por favor, selecione uma opção";
+            return;
+        }
+
+        mensagemValidacao = "";
+        await ProcessarEnvio();
+    }
+
+    private async Task ProcessarEnvio()
+    {
+        try
+        {
+            var mesRefDateTime = DateTime.ParseExact($"{mesReferencia}-01", "MM/yyyy-dd", null);
+            var novaResposta = respostaSelecionada == "sim" ? "Sim" : "Não";
+
+            var registroExistente = objNeg.BuscarRegistrosExistentesExpoCambial(mesRefDateTime, DepartamentoAtual);
+
+            if (registroExistente != null)
+            {
+                var respostaAtual = registroExistente.HouveExposicao ? "Sim" : "Não";
+
+                var confirmacao = await ExibirModalConfirmacao(
+                    $"Já existe resposta para {mesReferencia} - {DepartamentoAtual}",
+                    $"Resposta atual: {respostaAtual}",
+                    $"Nova resposta: {novaResposta}",
+                    "Deseja atualizar a resposta existente?"
+                );
+
+                if (!confirmacao)
+                {
+                    mensagemValidacao = "Operação cancelada pelo usuário";
+                    await Task.Delay(3000);
+                    mensagemValidacao = "";
+                    return;
+                }
+
+                await SalvarDados(isUpdate: true, novaResposta);
+            }
+            else
+            {
+                await SalvarDados(isUpdate: false, novaResposta);
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagemValidacao = $"Erro ao processar: {ex.Message}";
+        }
+    }
+
+    private async Task<bool> ExibirModalConfirmacao(string titulo, string respostaAtual, string novaResposta, string pergunta)
+    {
+        modalTitulo = titulo;
+        modalRespostaAtual = respostaAtual;
+        modalNovaResposta = novaResposta;
+        modalPergunta = pergunta;
+
+        exibirModal = true;
+        modalTaskSource = new TaskCompletionSource<bool>();
+        StateHasChanged();
+
+        return await modalTaskSource.Task;
+    }
+
+    private void ResponderModal(bool resposta)
+    {
+        exibirModal = false;
+        modalTaskSource?.SetResult(resposta);
+        StateHasChanged();
+    }
+
+    private void FecharModal()
+    {
+        ResponderModal(false);
+    }
+
+    private async Task SalvarDados(bool isUpdate, string? novaResposta)
+    {
+        try
+        {
+            var mesRefDateTime = DateTime.ParseExact($"{mesReferencia}-01", "MM/yyyy-dd", null);
+            var novaRespostaBool = novaResposta == "Sim";
+
+            bool sucesso;
+            if (isUpdate)
+            {
+                sucesso = objNeg.AtualizarRegistroExpoCambial(mesRefDateTime, novaRespostaBool, DepartamentoAtual);
+            }
+            else
+            {
+                sucesso = objNeg.InserirRegistroExpoCambial(emailUsuario, DepartamentoAtual, mesRefDateTime, novaRespostaBool);
+            }
+
+            if (sucesso)
+            {
+                mensagemValidacao = "Resposta registrada com sucesso!";
+                respostaSelecionada = null;
+                StateHasChanged();
+
+                await Task.Delay(4000);
+                mensagemValidacao = "";
+            }
+            else
+            {
+                mensagemValidacao = "Erro ao salvar. Tente novamente ou contate o suporte";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagemValidacao = $"Erro ao salvar: {ex.Message}";
+        }
+    }
+
+    private string DepartamentoAtual =>
+        departamentos?.Count == 1 ? departamentos[0] : departamentoSelecionado;
+
+    private bool PodeResponder =>
+        !string.IsNullOrEmpty(DepartamentoAtual);
+}

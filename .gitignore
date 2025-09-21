@@ -1,0 +1,54 @@
+# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# Visual Studio cache
+.vs/
+
+# Rider (JetBrains)
+.idea/
+
+# Logs
+*.log
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuget.props
+*.nuget.targets
+
+# Configurações locais
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Publish outputs
+publish/
+wwwroot/dist/
+wwwroot/node_modules/
+
+# Node (caso use front-end)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# VS Code
+.vscode/
+
+# Sistema
+Thumbs.db
+ehthumbs.db
+Desktop.ini
