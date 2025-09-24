@@ -1,0 +1,564 @@
+﻿@rendermode InteractiveServer
+@page "/registro"
+@using ExpoCambialWeb.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<PageTitle>ExpoCambial - Cadastro</PageTitle>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .registro-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #c60c42 0%, #8b0831 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .registro-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 80px rgba(0,0,0,0.2);
+        padding: 60px 50px;
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+        animation: slideIn 0.6s ease;
+    }
+
+    .registro-header {
+        margin-bottom: 40px;
+    }
+
+    .bradesco-logo {
+        font-size: 32px;
+        color: #cc0000;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .registro-subtitle {
+        color: #7f8c8d;
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        text-align: left;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 14px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid #e1e8ed;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #c60c42;
+            box-shadow: 0 0 0 3px rgba(198, 12, 66, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-input.error {
+            border-color: #e74c3c;
+            background-color: #fdf2f2;
+        }
+
+        .form-input.success {
+            border-color: #27ae60;
+            background-color: #f8fff8;
+        }
+
+    .password-strength {
+        margin-top: 8px;
+        font-size: 12px;
+    }
+
+    .strength-weak {
+        color: #e74c3c;
+    }
+
+    .strength-medium {
+        color: #f39c12;
+    }
+
+    .strength-strong {
+        color: #27ae60;
+    }
+
+    .password-toggle {
+        position: relative;
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #7f8c8d;
+        font-size: 18px;
+        padding: 5px;
+    }
+
+        .password-toggle-btn:hover {
+            color: #c60c42;
+        }
+
+    .btn-registro {
+        width: 100%;
+        background: linear-gradient(135deg, #c60c42 0%, #8b0831 100%);
+        color: white;
+        border: none;
+        padding: 18px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        box-shadow: 0 8px 25px rgba(198, 12, 66, 0.3);
+    }
+
+        .btn-registro:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(198, 12, 66, 0.4);
+        }
+
+        .btn-registro:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    .alert {
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+        text-align: center;
+    }
+
+    .alert-error {
+        background-color: #fee;
+        color: #c53030;
+        border: 1px solid #feb2b2;
+    }
+
+    .alert-success {
+        background-color: #f0fff4;
+        color: #22543d;
+        border: 1px solid #9ae6b4;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid transparent;
+        border-top: 3px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+    }
+
+    .login-link {
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 1px solid #e1e8ed;
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+        .login-link a {
+            color: #c60c42;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .login-link a:hover {
+                text-decoration: underline;
+            }
+
+    .registro-footer {
+        margin-top: 30px;
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+
+    @@keyframes spin {
+        0%
+
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    @@keyframes slideIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .registro-card
+
+    {
+        padding: 40px 30px;
+        margin: 10px;
+    }
+
+    .bradesco-logo {
+        font-size: 28px;
+    }
+
+    }
+</style>
+
+<div class="registro-container">
+    <div class="registro-card">
+        <div class="registro-header">
+            <div class="bradesco-logo">Bradesco</div>
+            <div class="registro-subtitle">Cadastro de Usuário</div>
+        </div>
+
+        <form @onsubmit="RealizarCadastro" @onsubmit:preventDefault="true">
+            <!-- Email -->
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email"
+                       class="form-input @(emailInvalido ? "error" : emailValido ? "success" : "")"
+                       @bind="email"
+                       @oninput="ValidarEmail"
+                       placeholder="seu.email@empresa.com"
+                       disabled="@estaCadastrando" />
+                @if (!string.IsNullOrEmpty(erroEmail))
+                {
+                    <div style="color: #e74c3c; font-size: 12px; margin-top: 5px;">@erroEmail</div>
+                }
+            </div>
+
+            <!-- Senha -->
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <div class="password-toggle">
+                    <input type="@(mostrarSenha ? "text" : "password")"
+                           class="form-input @(senhaInvalida ? "error" : senhaValida ? "success" : "")"
+                           @bind="senha"
+                           @oninput="ValidarSenha"
+                           placeholder="Digite sua senha"
+                           disabled="@estaCadastrando" />
+                    <button type="button"
+                            class="password-toggle-btn"
+                            @onclick="AlternarVisibilidadeSenha"
+                            disabled="@estaCadastrando">
+                        @(mostrarSenha ? "🙈" : "👁️")
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(senha))
+                {
+                    <div class="password-strength @forcaSenhaClass">
+                        @forcaSenhaTexto
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(erroSenha))
+                {
+                    <div style="color: #e74c3c; font-size: 12px; margin-top: 5px;">@erroSenha</div>
+                }
+            </div>
+
+            <!-- Confirmar Senha -->
+            <div class="form-group">
+                <label class="form-label">Confirmar Senha</label>
+                <div class="password-toggle">
+                    <input type="@(mostrarConfirmarSenha ? "text" : "password")"
+                           class="form-input @(confirmarSenhaInvalida ? "error" : confirmarSenhaValida ? "success" : "")"
+                           @bind="confirmarSenha"
+                           @oninput="ValidarConfirmarSenha"
+                           placeholder="Confirme sua senha"
+                           disabled="@estaCadastrando" />
+                    <button type="button"
+                            class="password-toggle-btn"
+                            @onclick="AlternarVisibilidadeConfirmarSenha"
+                            disabled="@estaCadastrando">
+                        @(mostrarConfirmarSenha ? "🙈" : "👁️")
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(erroConfirmarSenha))
+                {
+                    <div style="color: #e74c3c; font-size: 12px; margin-top: 5px;">@erroConfirmarSenha</div>
+                }
+            </div>
+
+            <!-- Mensagem de erro/sucesso -->
+            @if (!string.IsNullOrEmpty(mensagemCadastro))
+            {
+                <div class="alert @(cadastroSucesso ? "alert-success" : "alert-error")">
+                    @mensagemCadastro
+                </div>
+            }
+
+            <!-- Botão Cadastrar -->
+            <button type="submit" class="btn-registro" disabled="@(!FormularioValido || estaCadastrando)">
+                @if (estaCadastrando)
+                {
+                    <span class="loading-spinner"></span>
+                    <span>Cadastrando...</span>
+                }
+                else
+                {
+                    <span>Criar Conta</span>
+                }
+            </button>
+        </form>
+
+        <div class="login-link">
+            Já possui uma conta?
+            <a href="/login" @onclick="IrParaLogin" @onclick:preventDefault="true">
+                Fazer Login
+            </a>
+        </div>
+
+        <div class="registro-footer">
+            <small>© 2025 - Sistema ExpoCambial v1.0</small>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string email = "";
+    private string senha = "";
+    private string confirmarSenha = "";
+    private bool mostrarSenha = false;
+    private bool mostrarConfirmarSenha = false;
+    private bool estaCadastrando = false;
+
+    // Validações
+    private bool emailInvalido = false;
+    private bool emailValido = false;
+    private bool senhaInvalida = false;
+    private bool senhaValida = false;
+    private bool confirmarSenhaInvalida = false;
+    private bool confirmarSenhaValida = false;
+
+    // Mensagens de erro
+    private string erroEmail = "";
+    private string erroSenha = "";
+    private string erroConfirmarSenha = "";
+    private string mensagemCadastro = "";
+    private bool cadastroSucesso = false;
+
+    // Força da senha
+    private string forcaSenhaTexto = "";
+    private string forcaSenhaClass = "";
+
+    private bool FormularioValido =>
+        emailValido && senhaValida && confirmarSenhaValida &&
+        !string.IsNullOrWhiteSpace(email) &&
+        !string.IsNullOrWhiteSpace(senha) &&
+        senha == confirmarSenha;
+
+    private void ValidarEmail()
+    {
+        erroEmail = "";
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            emailInvalido = false;
+            emailValido = false;
+            return;
+        }
+
+        if (!email.Contains("@") || !email.Contains("."))
+        {
+            emailInvalido = true;
+            emailValido = false;
+            erroEmail = "Email inválido";
+            return;
+        }
+
+        emailInvalido = false;
+        emailValido = true;
+    }
+
+    private void ValidarSenha()
+    {
+        erroSenha = "";
+
+        if (string.IsNullOrWhiteSpace(senha))
+        {
+            senhaInvalida = false;
+            senhaValida = false;
+            forcaSenhaTexto = "";
+            return;
+        }
+
+        if (senha.Length < 6)
+        {
+            senhaInvalida = true;
+            senhaValida = false;
+            erroSenha = "Senha deve ter no mínimo 6 caracteres";
+            forcaSenhaTexto = "Muito fraca";
+            forcaSenhaClass = "strength-weak";
+            return;
+        }
+
+        senhaInvalida = false;
+        senhaValida = true;
+
+        // Calcular força da senha
+        int pontos = 0;
+        if (senha.Length >= 8) pontos++;
+        if (senha.Any(char.IsUpper)) pontos++;
+        if (senha.Any(char.IsLower)) pontos++;
+        if (senha.Any(char.IsDigit)) pontos++;
+        if (senha.Any(c => !char.IsLetterOrDigit(c))) pontos++;
+
+        switch (pontos)
+        {
+            case 0:
+            case 1:
+                forcaSenhaTexto = "Muito fraca";
+                forcaSenhaClass = "strength-weak";
+                break;
+            case 2:
+            case 3:
+                forcaSenhaTexto = "Média";
+                forcaSenhaClass = "strength-medium";
+                break;
+            default:
+                forcaSenhaTexto = "Forte";
+                forcaSenhaClass = "strength-strong";
+                break;
+        }
+
+        // Revalidar confirmação se já foi preenchida
+        if (!string.IsNullOrEmpty(confirmarSenha))
+        {
+            ValidarConfirmarSenha();
+        }
+    }
+
+    private void ValidarConfirmarSenha()
+    {
+        erroConfirmarSenha = "";
+
+        if (string.IsNullOrWhiteSpace(confirmarSenha))
+        {
+            confirmarSenhaInvalida = false;
+            confirmarSenhaValida = false;
+            return;
+        }
+
+        if (confirmarSenha != senha)
+        {
+            confirmarSenhaInvalida = true;
+            confirmarSenhaValida = false;
+            erroConfirmarSenha = "Senhas não coincidem";
+            return;
+        }
+
+        confirmarSenhaInvalida = false;
+        confirmarSenhaValida = true;
+    }
+
+    private void AlternarVisibilidadeSenha()
+    {
+        mostrarSenha = !mostrarSenha;
+    }
+
+    private void AlternarVisibilidadeConfirmarSenha()
+    {
+        mostrarConfirmarSenha = !mostrarConfirmarSenha;
+    }
+
+    private void IrParaLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+
+    private async Task RealizarCadastro()
+    {
+        if (!FormularioValido)
+        {
+            mensagemCadastro = "Por favor, preencha todos os campos corretamente.";
+            cadastroSucesso = false;
+            return;
+        }
+
+        estaCadastrando = true;
+        mensagemCadastro = "";
+        StateHasChanged();
+
+        try
+        {
+            await Task.Delay(1000); // Simular delay de cadastro
+
+            var resultado = await AuthService.CadastrarUsuario(email, senha);
+
+            if (resultado.Sucesso)
+            {
+                cadastroSucesso = true;
+                mensagemCadastro = "Conta criada com sucesso! Redirecionando para login...";
+
+                await Task.Delay(2000);
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                cadastroSucesso = false;
+                mensagemCadastro = resultado.Erro;
+            }
+        }
+        catch (Exception ex)
+        {
+            cadastroSucesso = false;
+            mensagemCadastro = $"Erro ao criar conta: {ex.Message}";
+        }
+        finally
+        {
+            estaCadastrando = false;
+            StateHasChanged();
+        }
+    }
+}

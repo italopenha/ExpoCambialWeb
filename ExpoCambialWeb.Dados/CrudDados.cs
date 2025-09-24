@@ -1,4 +1,5 @@
 ﻿using ExpoCambialWeb.Entidades;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -138,6 +139,65 @@ namespace ExpoCambialWeb.Dados
             catch (Exception ex)
             {
                 throw new Exception(ex.Message.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Busca usuário de autenticação por email
+        /// </summary>
+        public async Task<UsuarioAuth?> BuscarUsuarioAuthPorEmail(string email)
+        {
+            try
+            {
+                using (var context = new ExpoCambialContext())
+                {
+                    return await context.UsuarioAuth
+                        .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && u.Ativo);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao buscar usuário de autenticação: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Insere novo usuário de autenticação
+        /// </summary>
+        public async Task<bool> InserirUsuarioAuth(UsuarioAuth usuario)
+        {
+            try
+            {
+                using (var context = new ExpoCambialContext())
+                {
+                    context.UsuarioAuth.Add(usuario);
+                    var result = await context.SaveChangesAsync();
+                    return result > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao inserir usuário de autenticação: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Busca usuário na tabela principal por email (para pegar o nome)
+        /// </summary>
+        public async Task<Usuario?> BuscarUsuarioPorEmail(string email)
+        {
+            try
+            {
+                using (var context = new ExpoCambialContext())
+                {
+                    return await context.Usuarios
+                        .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+                }
+            }
+            catch (Exception ex)
+            {
+                // Se não encontrar, retorna null sem erro (usuário pode não estar na tabela principal ainda)
+                return null;
             }
         }
     }
