@@ -1,468 +1,473 @@
 ﻿@rendermode InteractiveServer
-@page "/"
 @page "/expocambial"
 @using ExpoCambialWeb.Negocios
+@using ExpoCambialWeb.Services
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @inject CrudNegocios objNeg
+@inject AuthService AuthService
 @inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
 
 <PageTitle>Expo Cambial</PageTitle>
 
-<style>
-    .expocambial-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        min-height: 100vh;
-    }
-
-    .header-section {
-        text-align: center;
-        margin-bottom: 40px;
-        padding: 30px 0;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    .bradesco-logo {
-        font-size: 28px;
-        color: #cc0000;
-        font-weight: 700;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .form-card {
-        background: white;
-        border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-        margin-bottom: 30px;
-        border: 1px solid #e1e8ed;
-    }
-
-    .form-group {
-        margin-bottom: 30px;
-    }
-
-    .form-label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: #2c3e50;
-        font-size: 14px;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid #e1e8ed;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        background-color: #f8f9fa;
-    }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+<ProtectedRoute>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', Arial, sans-serif;
         }
 
-    .form-select {
-        background: white;
-        border: 2px solid #e1e8ed;
-        border-radius: 8px;
-        padding: 12px 16px;
-        font-size: 14px;
-        width: 100%;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-        .form-select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        .expocambial-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #cc0000 0%, #cc0000 100%);
+            min-height: 100vh;
+            border-radius: 20px;
         }
 
-    .norma-text {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 10px;
-        margin: 30px 0;
-        font-size: 16px;
-        text-align: center;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-
-    .radio-group {
-        display: flex;
-        gap: 30px;
-        justify-content: center;
-        margin: 30px 0;
-    }
-
-    .radio-option {
-        display: flex;
-        align-items: center;
-        padding: 15px 25px;
-        background: white;
-        border: 2px solid #e1e8ed;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        min-width: 200px;
-    }
-
-        .radio-option:hover:not(.disabled) {
-            border-color: #3498db;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
-        .radio-option.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #f8f9fa;
+        .bradesco-logo {
+            font-size: 28px;
+            color: #cc0000;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
-        .radio-option input[type="radio"] {
-            margin-right: 12px;
-            transform: scale(1.2);
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border: 1px solid #e1e8ed;
         }
 
-        .radio-option label {
-            font-weight: 500;
-            cursor: pointer;
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
             font-size: 14px;
         }
 
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 15px 40px;
-        border-radius: 25px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
         }
 
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+            .form-input:focus {
+                outline: none;
+                border-color: #c60c42;
+                box-shadow: 0 0 0 3px rgba(198, 12, 66, 0.1);
+            }
+
+        .form-select {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-    .alert {
-        padding: 15px 20px;
-        border-radius: 8px;
-        margin: 20px 0;
-        font-weight: 500;
-        animation: slideIn 0.3s ease;
-    }
+            .form-select:focus {
+                outline: none;
+                border-color: #c60c42;
+                box-shadow: 0 0 0 3px rgba(198, 12, 66, 0.1);
+            }
 
-    .alert-error {
-        background-color: #fee;
-        color: #c53030;
-        border: 1px solid #feb2b2;
-    }
+        .norma-text {
+            background: linear-gradient(135deg, #c60c42 0%, #8b0831 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            font-size: 16px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
 
-    .alert-success {
-        background-color: #f0fff4;
-        color: #22543d;
-        border: 1px solid #9ae6b4;
-    }
+        .radio-group {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 30px 0;
+        }
 
-    .loading-spinner {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #3498db;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-right: 10px;
-    }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
 
-    @@keyframes spin {
-        0%
+            .radio-option:hover:not(.disabled) {
+                border-color: #c60c42;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
 
-    {
-        transform: rotate(0deg);
-    }
+            .radio-option.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                background: #f8f9fa;
+            }
 
-    100% {
-        transform: rotate(360deg);
-    }
+            .radio-option input[type="radio"] {
+                margin-right: 12px;
+                transform: scale(1.2);
+            }
 
-    }
+            .radio-option label {
+                font-weight: 500;
+                cursor: pointer;
+                font-size: 14px;
+            }
 
-    @@keyframes slideIn {
-        from
+        .btn-primary {
+            background: linear-gradient(135deg, #c60c42 0%, #8b0831 100%);
+            box-shadow: 0 5px 15px rgba(198, 12, 66, 0.4);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-    {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
+            .btn-primary:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(198, 12, 66, 0.6);
+            }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+            .btn-primary:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none;
+                box-shadow: none;
+            }
 
-    }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
 
-    .footer-info {
-        text-align: center;
-        margin-top: 40px;
-        color: #7f8c8d;
-        font-size: 13px;
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-    }
+        .alert-error {
+            background-color: #fee;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
 
-    /* Modal Styles */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        animation: fadeIn 0.3s ease;
-    }
+        .alert-success {
+            background-color: #f0fff4;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
 
-    .modal-content {
-        background: white;
-        padding: 40px;
-        border-radius: 20px;
-        max-width: 500px;
-        width: 90%;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        animation: slideUp 0.3s ease;
-    }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #c60c42;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
 
-    .modal-header {
-        text-align: center;
-        margin-bottom: 30px;
-    }
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
 
-    .modal-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 10px;
-    }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
-    .modal-body {
-        margin-bottom: 30px;
-        text-align: center;
-        line-height: 1.6;
-    }
+        @@keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
 
-    .modal-info {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        margin: 20px 0;
-        border-left: 4px solid #3498db;
-    }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    .modal-buttons {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-    }
+        .footer-info {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 13px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
 
-    .btn-secondary {
-        background: #6c757d;
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 20px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
 
-    .btn-secondary:hover {
-        background: #5a6268;
-        transform: translateY(-1px);
-    }
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
 
-    @@keyframes fadeIn {
-        from
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-    {
-        opacity: 0;
-    }
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
 
-    to {
-        opacity: 1;
-    }
+        .modal-body {
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.6;
+        }
 
-    }
+        .modal-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
 
-    @@keyframes slideUp {
-        from
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
 
-    {
-        opacity: 0;
-        transform: translateY(50px);
-    }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+            .btn-secondary:hover {
+                background: #5a6268;
+                transform: translateY(-1px);
+            }
 
-    }
-</style>
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
 
-<div class="expocambial-container">
-    <!-- Header -->
-    <div class="header-section">
-        <div class="bradesco-logo">Bradesco Custódia e Serviços Financeiros</div>
-        <p style="color: #7f8c8d; margin-top: 10px;">Sistema de Declaração de Exposição Cambial</p>
-    </div>
+            to {
+                opacity: 1;
+            }
+        }
 
-    <div class="form-card">
-        <!-- Nome -->
-        <div class="form-group">
-            <label class="form-label">Nome Completo</label>
-            <input type="text" class="form-input" value="@nomeUsuario" readonly />
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <div class="expocambial-container">
+        <!-- Header -->
+        <div class="header-section">
+            <div class="bradesco-logo">Bradesco Custódia e Serviços Financeiros</div>
+            <p style="color: #7f8c8d; margin-top: 10px;">Sistema de Declaração de Exposição Cambial</p>
+            <div style="position: absolute; top: 20px; right: 20px;">
+                <button style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 12px;" @onclick="Logout">
+                    Sair (@AuthService.UsuarioLogado)
+                </button>
+            </div>
         </div>
 
-        <!-- Mês Referência -->
-        <div class="form-group">
-            <label class="form-label">Mês de Referência</label>
-            <input type="text" class="form-input" value="@mesReferencia" readonly style="max-width: 200px;" />
-        </div>
+        <div class="form-card">
+            <!-- Nome -->
+            <div class="form-group">
+                <label class="form-label">Nome Completo</label>
+                <input type="text" class="form-input" value="@nomeUsuario" readonly />
+            </div>
 
-        <!-- Departamento -->
-        <div class="form-group">
-            <label class="form-label">Departamento</label>
-            @if (departamentos == null)
+            <!-- Mês Referência -->
+            <div class="form-group">
+                <label class="form-label">Mês de Referência</label>
+                <input type="text" class="form-input" value="@mesReferencia" readonly style="max-width: 200px;" />
+            </div>
+
+            <!-- Departamento -->
+            <div class="form-group">
+                <label class="form-label">Departamento</label>
+                @if (departamentos == null)
+                {
+                    <div class="form-input">
+                        <span class="loading-spinner"></span>Carregando departamentos...
+                    </div>
+                }
+                else if (departamentos.Count == 1)
+                {
+                    <input type="text" class="form-input" value="@departamentos[0]" readonly />
+                }
+                else if (departamentos.Count > 1)
+                {
+                    <select class="form-select" @bind="departamentoSelecionado">
+                        <option value="">Selecione um departamento...</option>
+                        @foreach (var depto in departamentos)
+                        {
+                            <option value="@depto">@depto</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <div class="alert alert-error">
+                        Nenhum departamento encontrado para este usuário
+                    </div>
+                }
+            </div>
+
+            <!-- Norma -->
+            @if (!string.IsNullOrEmpty(DepartamentoAtual))
             {
-                <div class="form-input">
-                    <span class="loading-spinner"></span>Carregando departamentos...
+                <div class="norma-text">
+                    Eu <strong>@nomeUsuario</strong>, do departamento <strong>@DepartamentoAtual</strong>, declaro estar ciente da norma de exposição cambial
                 </div>
-            }
-            else if (departamentos.Count == 1)
-            {
-                <input type="text" class="form-input" value="@departamentos[0]" readonly />
-            }
-            else if (departamentos.Count > 1)
-            {
-                <select class="form-select" @bind="departamentoSelecionado">
-                    <option value="">Selecione um departamento...</option>
-                    @foreach (var depto in departamentos)
-                    {
-                        <option value="@depto">@depto</option>
-                    }
-                </select>
             }
             else
             {
-                <div class="alert alert-error">
-                    Nenhum departamento encontrado para este usuário
+                <div style="text-align: center; color: #7f8c8d; padding: 20px; font-style: italic;">
+                    Selecione um departamento para prosseguir
                 </div>
             }
-        </div>
 
-        <!-- Norma -->
-        @if (!string.IsNullOrEmpty(DepartamentoAtual))
-        {
-            <div class="norma-text">
-                Eu <strong>@nomeUsuario</strong>, do departamento <strong>@DepartamentoAtual</strong>, declaro estar ciente da norma de exposição cambial
-            </div>
-        }
-        else
-        {
-            <div style="text-align: center; color: #7f8c8d; padding: 20px; font-style: italic;">
-                Selecione um departamento para prosseguir
-            </div>
-        }
-
-        <!-- Radio Buttons -->
-        <div class="radio-group">
-            <div class="radio-option @(!PodeResponder ? "disabled" : "")" @onclick="() => SelecionarResposta(true)">
-                <input type="radio" id="rbSim" name="escolha" value="sim" @onchange="SelecionarResposta" disabled="@(!PodeResponder)" />
-                <label for="rbSim">Estou ciente da norma</label>
-            </div>
-            <div class="radio-option @(!PodeResponder ? "disabled" : "")" @onclick="() => SelecionarResposta(false)">
-                <input type="radio" id="rbNao" name="escolha" value="nao" @onchange="SelecionarResposta" disabled="@(!PodeResponder)" />
-                <label for="rbNao">Não estou ciente da norma</label>
-            </div>
-        </div>
-
-        <!-- Mensagem de validação -->
-        @if (!string.IsNullOrEmpty(mensagemValidacao))
-        {
-            <div class="alert @(mensagemValidacao.Contains("sucesso") ? "alert-success" : "alert-error")">
-                @mensagemValidacao
-            </div>
-        }
-
-        <!-- Botão Enviar -->
-        <div style="text-align: center; margin: 40px 0;">
-            <button type="button" class="btn-primary" @onclick="EnviarFormulario" disabled="@(!PodeResponder)">
-                Enviar Declaração
-            </button>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer-info">
-        Em caso de dúvidas, entre em contato com fulano@email.com<br>
-        <small>© 2025 - Sistema ExpoCambial</small>
-    </div>
-</div>
-
-<!-- Modal de Confirmação -->
-@if (exibirModal)
-{
-    <div class="modal-overlay" @onclick="FecharModal">
-        <div class="modal-content" @onclick:stopPropagation="true">
-            <div class="modal-header">
-                <div class="modal-title">Confirmação de Atualização</div>
-            </div>
-            <div class="modal-body">
-                <p><strong>@modalTitulo</strong></p>
-                <div class="modal-info">
-                    <p>@modalRespostaAtual</p>
-                    <p>@modalNovaResposta</p>
+            <!-- Radio Buttons -->
+            <div class="radio-group">
+                <div class="radio-option @(!PodeResponder ? "disabled" : "")" @onclick="() => SelecionarResposta(true)">
+                    <input type="radio" id="rbSim" name="escolha" value="sim" @onchange="SelecionarResposta" disabled="@(!PodeResponder)" />
+                    <label for="rbSim">Estou ciente da norma</label>
                 </div>
-                <p>@modalPergunta</p>
+                <div class="radio-option @(!PodeResponder ? "disabled" : "")" @onclick="() => SelecionarResposta(false)">
+                    <input type="radio" id="rbNao" name="escolha" value="nao" @onchange="SelecionarResposta" disabled="@(!PodeResponder)" />
+                    <label for="rbNao">Não estou ciente da norma</label>
+                </div>
             </div>
-            <div class="modal-buttons">
-                <button type="button" class="btn-secondary" @onclick="() => ResponderModal(false)">
-                    Cancelar
-                </button>
-                <button type="button" class="btn-primary" @onclick="() => ResponderModal(true)">
-                    Confirmar Atualização
+
+            <!-- Mensagem de validação -->
+            @if (!string.IsNullOrEmpty(mensagemValidacao))
+            {
+                <div class="alert @(mensagemValidacao.Contains("sucesso") ? "alert-success" : "alert-error")">
+                    @mensagemValidacao
+                </div>
+            }
+
+            <!-- Botão Enviar -->
+            <div style="text-align: center; margin: 40px 0;">
+                <button type="button" class="btn-primary" @onclick="EnviarFormulario" disabled="@(!PodeResponder)">
+                    Enviar Declaração
                 </button>
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="footer-info">
+            Em caso de dúvidas, entre em contato com fulano@email.com<br>
+            <small>© 2025 - Sistema ExpoCambial</small>
+        </div>
     </div>
-}
+
+    <!-- Modal de Confirmação -->
+    @if (exibirModal)
+    {
+        <div class="modal-overlay" @onclick="FecharModal">
+            <div class="modal-content" @onclick:stopPropagation="true">
+                <div class="modal-header">
+                    <div class="modal-title">Confirmação de Atualização</div>
+                </div>
+                <div class="modal-body">
+                    <p><strong>@modalTitulo</strong></p>
+                    <div class="modal-info">
+                        <p>@modalRespostaAtual</p>
+                        <p>@modalNovaResposta</p>
+                    </div>
+                    <p>@modalPergunta</p>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-secondary" @onclick="() => ResponderModal(false)">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn-primary" @onclick="() => ResponderModal(true)">
+                        Confirmar Atualização
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</ProtectedRoute>
 
 @code {
     // Propriedades
@@ -637,4 +642,10 @@
 
     private bool PodeResponder =>
         !string.IsNullOrEmpty(DepartamentoAtual);
+
+    private void Logout()
+    {
+        AuthService.Logout();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
 }

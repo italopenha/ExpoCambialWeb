@@ -1,0 +1,432 @@
+﻿@rendermode InteractiveServer
+@page "/login"
+@using ExpoCambialWeb.Negocios
+@inject CrudNegocios objNeg
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Exposição Cambial - Login</PageTitle>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', Arial, sans-serif;
+    }
+
+    .login-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #c60c42 0%, #8b0831 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 80px rgba(0,0,0,0.2);
+        padding: 60px 50px;
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+        animation: slideIn 0.6s ease;
+    }
+
+    .login-header {
+        margin-bottom: 40px;
+    }
+
+    .bradesco-logo {
+        font-size: 32px;
+        color: #cc0000;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .login-subtitle {
+        color: #7f8c8d;
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        text-align: left;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 14px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid #e1e8ed;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #c60c42;
+            box-shadow: 0 0 0 3px rgba(198, 12, 66, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-input.error {
+            border-color: #e74c3c;
+            background-color: #fdf2f2;
+        }
+
+    .btn-login {
+        width: 100%;
+        background: linear-gradient(135deg, #c60c42 0%, #8b0831 100%);
+        box-shadow: 0 8px 25px rgba(198, 12, 66, 0.3);
+        color: white;
+        border: none;
+        padding: 18px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(198, 12, 66, 0.4);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    .alert {
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+        text-align: center;
+    }
+
+    .alert-error {
+        background-color: #fee;
+        color: #c53030;
+        border: 1px solid #feb2b2;
+    }
+
+    .alert-success {
+        background-color: #f0fff4;
+        color: #22543d;
+        border: 1px solid #9ae6b4;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid transparent;
+        border-top: 3px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+    }
+
+    .password-toggle {
+        position: relative;
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #7f8c8d;
+        font-size: 18px;
+        padding: 5px;
+    }
+
+        .password-toggle-btn:hover {
+            color: #c60c42;
+        }
+
+    .login-footer {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 1px solid #e1e8ed;
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+
+    .forgot-password {
+        margin-top: 15px;
+    }
+
+        .forgot-password a {
+            color: #333b8f;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .forgot-password a:hover {
+                text-decoration: underline;
+            }
+
+    @@keyframes spin {
+        0%
+
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    @@keyframes slideIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .login-card
+
+    {
+        padding: 40px 30px;
+        margin: 10px;
+    }
+
+    .bradesco-logo {
+        font-size: 28px;
+    }
+
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="bradesco-logo">Bradesco Custódia e Serviços Financeiros</div>
+            <div class="login-subtitle">Sistema Exposição Cambial</div>
+        </div>
+
+        <form @onsubmit="RealizarLogin" @onsubmit:preventDefault="true">
+            <!-- Email -->
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email"
+                       class="form-input @(emailInvalido ? "error" : "")"
+                       @bind="email"
+                       @oninput="LimparErros"
+                       placeholder="seu.email@empresa.com"
+                       disabled="@estaLogando" />
+            </div>
+
+            <!-- Senha -->
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <div class="password-toggle">
+                    <input type="@(mostrarSenha ? "text" : "password")"
+                           class="form-input @(senhaInvalida ? "error" : "")"
+                           @bind="senha"
+                           @oninput="LimparErros"
+                           @onkeypress="VerificarEnter"
+                           placeholder="Digite sua senha"
+                           disabled="@estaLogando" />
+                    <button type="button"
+                            class="password-toggle-btn"
+                            @onclick="AlternarVisibilidadeSenha"
+                            disabled="@estaLogando">
+                        @(mostrarSenha ? "🙈" : "👁️")
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mensagem de erro/sucesso -->
+            @if (!string.IsNullOrEmpty(mensagemLogin))
+            {
+                <div class="alert @(loginSucesso ? "alert-success" : "alert-error")">
+                    @mensagemLogin
+                </div>
+            }
+
+            <!-- Botão Login -->
+            <button type="submit" class="btn-login" disabled="@estaLogando">
+                @if (estaLogando)
+                {
+                    <span class="loading-spinner"></span>
+                    <span>Entrando...</span>
+                }
+                else
+                {
+                    <span>Entrar</span>
+                }
+            </button>
+        </form>
+
+        <div class="forgot-password">
+            <a href="#" @onclick="EsqueceuSenha" @onclick:preventDefault="true">
+                Esqueceu sua senha?
+            </a>
+        </div>
+
+        <div class="login-footer">
+            <small>© 2025 - Sistema Exposição Cambial v1.0</small>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string email = "";
+    private string senha = "";
+    private bool mostrarSenha = false;
+    private bool estaLogando = false;
+    private bool emailInvalido = false;
+    private bool senhaInvalida = false;
+    private string mensagemLogin = "";
+    private bool loginSucesso = false;
+
+    private void LimparErros()
+    {
+        emailInvalido = false;
+        senhaInvalida = false;
+        mensagemLogin = "";
+    }
+
+    private void AlternarVisibilidadeSenha()
+    {
+        mostrarSenha = !mostrarSenha;
+    }
+
+    private async Task VerificarEnter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await RealizarLogin();
+        }
+    }
+
+    private void EsqueceuSenha()
+    {
+        mensagemLogin = "Entre em contato com o administrador do sistema para redefinir sua senha.";
+        loginSucesso = false;
+    }
+
+    private async Task RealizarLogin()
+    {
+        // Limpar estados anteriores
+        LimparErros();
+
+        // Validações básicas
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            emailInvalido = true;
+            mensagemLogin = "Por favor, digite seu email.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(senha))
+        {
+            senhaInvalida = true;
+            mensagemLogin = "Por favor, digite sua senha.";
+            return;
+        }
+
+        if (!email.Contains("@"))
+        {
+            emailInvalido = true;
+            mensagemLogin = "Por favor, digite um email válido.";
+            return;
+        }
+
+        // Iniciar processo de login
+        estaLogando = true;
+        StateHasChanged();
+
+        try
+        {
+            // Simular delay de autenticação
+            await Task.Delay(1500);
+
+            // Aqui você chamaria seu método de autenticação real
+            // bool loginValido = await objNeg.ValidarLogin(email, senha);
+
+            // Por enquanto, simulação de login
+            bool loginValido = await SimularAutenticacao(email, senha);
+
+            if (loginValido)
+            {
+                loginSucesso = true;
+                mensagemLogin = "Login realizado com sucesso! Redirecionando...";
+
+                // Aguardar um pouco para mostrar mensagem de sucesso
+                await Task.Delay(1000);
+
+                // Redirecionar para a página principal
+                Navigation.NavigateTo("/expocambial", forceLoad: true);
+            }
+            else
+            {
+                emailInvalido = true;
+                senhaInvalida = true;
+                mensagemLogin = "Email ou senha incorretos. Tente novamente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagemLogin = $"Erro ao tentar fazer login: {ex.Message}";
+        }
+        finally
+        {
+            estaLogando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task<bool> SimularAutenticacao(string email, string senha)
+    {
+        // Simular validação no banco de dados
+        await Task.Delay(500);
+
+        // Aqui você implementaria a lógica real de autenticação
+        // Por exemplo:
+        // - Consultar banco de dados
+        // - Verificar hash da senha
+        // - Validar se usuário está ativo
+        // - Criar sessão/token
+
+        // Simulação simples para teste
+        return !string.IsNullOrEmpty(email) &&
+               !string.IsNullOrEmpty(senha) &&
+               senha.Length >= 4;
+    }
+}

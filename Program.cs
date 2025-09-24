@@ -11,7 +11,10 @@ namespace ExpoCambialWeb
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+            builder.Services.AddScoped<ExpoCambialWeb.Dados.CrudDados>();
             builder.Services.AddScoped<ExpoCambialWeb.Negocios.CrudNegocios>();
+
+            builder.Services.AddScoped<ExpoCambialWeb.Services.AuthService>();
 
             var app = builder.Build();
 

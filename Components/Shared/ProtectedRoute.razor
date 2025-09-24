@@ -1,0 +1,45 @@
+﻿@using ExpoCambialWeb.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+@if (AuthService.EstaLogado)
+{
+    @ChildContent
+}
+else
+{
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+        <div style="text-align: center; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <h3 style="color: #cc0000; margin-bottom: 20px;">Acesso Restrito</h3>
+            <p style="color: #7f8c8d; margin-bottom: 30px;">Você precisa fazer login para acessar esta página.</p>
+            <button style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 30px; border-radius: 25px; cursor: pointer; font-weight: 600;" @onclick="RedirecionarParaLogin">
+                Fazer Login
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (!AuthService.EstaLogado)
+        {
+            // Redirecionar automaticamente após um pequeno delay
+            Task.Run(async () =>
+            {
+                await Task.Delay(2000);
+                await InvokeAsync(() =>
+                {
+                    Navigation.NavigateTo("/login", forceLoad: true);
+                });
+            });
+        }
+    }
+
+    private void RedirecionarParaLogin()
+    {
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

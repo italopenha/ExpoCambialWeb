@@ -13,4 +13,8 @@
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="9.0.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NovaPasta\" />
+  </ItemGroup>
+
 </Project>
